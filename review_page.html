@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>UM Panchanga Review Panel</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<header class="header" style="display:flex; justify-content:space-between; align-items:center; padding: 0 20px;">
+    <span>UM Panchanga Review Panel</span>
+    <button onclick="logoutUser()" style="background:#e53935; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-size:14px; font-weight:600;">Logout</button>
+</header>
+
+<main class="container">
+
+    <section class="card">
+        <h3>Filter & Generate Data</h3>
+
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label for="language">Language</label>
+                <select id="language">
+                    <option value="">-- Select --</option>
+                    <option>English</option>
+                    <option>Tamil</option>
+                    <option>Telugu</option>
+                    <option>Kannada</option>
+                    <option>Sanskrit</option>
+                    <option>Marathi</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="fromDate">From Date</label>
+                <input type="date" id="fromDate">
+            </div>
+
+            <div class="form-group">
+                <label for="toDate">To Date (Optional)</label>
+                <input type="date" id="toDate">
+            </div>
+
+            <div class="form-group">
+                <label for="rows">Total Rows</label>
+                <input type="number" id="rows" readonly>
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-primary" onclick="generateRows()">Generate</button>
+            <button class="btn btn-danger" onclick="resetAll()">Reset</button>
+        </div>
+
+    </section>
+
+    <section class="card">
+        <h3>Panchanga Data Entry</h3>
+
+        <div class="table-container">
+            <table id="dataTable">
+
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>Date</th>
+                        <th>Month</th>
+                        <th>Year</th>
+                        <th>Samvatsara</th>
+                        <th>Ayana</th>
+                        <th>Rutu</th>
+                        <th>Masa</th>
+                        <th>Masa Niyamaka</th>
+                        <th>Paksha</th>
+                        <th>Thithi</th>
+                        <th>Calendar Mark</th>
+                        <th>Vasara</th>
+                        <th>Nakshatra</th>
+                        <th>Yoga</th>
+                        <th>Karana</th>
+                        <th>Sunrise</th>
+                        <th>Sunset</th>
+                        <th>Shradha Tithi</th>
+                        <th>Today's Special</th>
+                    </tr>
+                </thead>
+
+                <tbody></tbody>
+
+            </table>
+        </div>
+
+        <br>
+    <div>
+
+        <button class="btn btn-success" onclick="submitData()">Submit</button>
+        <button class="btn btn-primary" onclick="clearSelectedRows()">Clear</button>
+        <button class="btn btn-danger" onclick="deleteSelectedRows()">Delete</button>
+    </div>
+
+    </section>
+
+</main>
+
+<script>
+    
+    if (localStorage.getItem("isLoggedIn") !== "true") {
+        window.location.replace("pages/login.html");
+    }
+
+    
+    history.pushState(null, "", window.location.href);
+
+    window.addEventListener("popstate", function () {
+        
+        history.pushState(null, "", window.location.href);
+    });
+
+    function logoutUser() {
+        localStorage.removeItem("isLoggedIn");
+        
+        window.location.replace("pages/login.html");
+    }
+</script>
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+<script src="js/panchanga.js"></script>
+<script src="js/submit.js"></script>
+<script src="js/utils.js"></script>
+
+</body>
+</html>
