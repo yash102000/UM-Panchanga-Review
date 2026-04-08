@@ -1,4 +1,4 @@
-import sys, io, os, json
+import sys, io, os, json, socket
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -12,9 +12,9 @@ app = Flask(__name__,
 CORS(app)
 
 
-DB_HOST            = os.getenv("DB_HOST", "panchanga-db.cxgu0ko8m1a7.ap-south-1.rds.amazonaws.com")
-DB_USER            = os.getenv("DB_USER", "admin")
-DB_PASSWORD        = os.getenv("DB_PASSWORD", "Pthinks123")
+DB_HOST            = os.getenv("DB_HOST", "localhost")
+DB_USER            = os.getenv("DB_USER", "root")
+DB_PASSWORD        = os.getenv("DB_PASSWORD", "")
 DB_NAME            = os.getenv("DB_NAME", "panchanga_db")
 DB_PORT            = int(os.getenv("DB_PORT", "3306"))
 DB_CHARSET         = os.getenv("DB_CHARSET", "utf8mb4")
@@ -217,8 +217,55 @@ def save():
         if conn:
             conn.close()
 
+def get_local_lan_ip():
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.connect(("8.8.8.8", 80))
+        return sock.getsockname()[0]
+    except Exception:
+        return "127.0.0.1"
+    finally:
+        try:
+            sock.close()
+        except Exception:
+            pass
+
 if __name__ == "__main__":
+    print("Starting backend app...", flush=True)
+    print("Initializing database (this may take a moment)...", flush=True)
     init_db()
     from waitress import serve
-    print("Starting production server with Waitress on port 5000...")
-    serve(app, host="0.0.0.0", port=5000)
+
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", "5000"))
+    use_https = os.getenv("USE_HTTPS", "false").lower() in ("1", "true", "yes")
+    protocol = "https" if use_https else "http"
+
+    display_host = "localhost" if host in ("0.0.0.0", "::", "") else host
+    login_urls = [f"{protocol}://{display_host}:{port}/pages/login.html"]
+
+    if host in ("0.0.0.0", "::", ""):
+        lan_ip = get_local_lan_ip()
+        if lan_ip not in ("127.0.0.1", "localhost"):
+            login_urls.append(f"{protocol}://{lan_ip}:{port}/pages/login.html")
+    elif host not in ("127.0.0.1", "localhost"):
+        login_urls.append(f"{protocol}://localhost:{port}/pages/login.html")
+        login_urls.append(f"{protocol}://127.0.0.1:{port}/pages/login.html")
+
+    login_urls = list(dict.fromkeys(login_urls))
+
+    print(f"Starting production server with Waitress on {host}:{port} using {protocol.upper()}...", flush=True)
+    print("Open one of the login pages in your browser:", flush=True)
+    for url in login_urls:
+        print(f"  {url}", flush=True)
+
+    if use_https:
+        cert_path = os.getenv("SSL_CERT_PATH")
+        key_path = os.getenv("SSL_KEY_PATH")
+        if cert_path and key_path:
+            serve(app, host=host, port=port, ssl_context=(cert_path, key_path))
+        else:
+            print("SSL certificate not configured. Falling back to Flask adhoc HTTPS server for local development.", flush=True)
+            app.run(host=host, port=port, ssl_context='adhoc')
+    else:
+        serve(app, host=host, port=port)

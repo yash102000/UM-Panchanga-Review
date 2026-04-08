@@ -52,7 +52,6 @@ function generateRows() {
 //     <td><input type="text"></td>
 //     <td><input type="text"></td>
 //     <td><input type="text"></td>
-//     <td><input type="text"></td>
 // `;
 
         tbody.appendChild(row);

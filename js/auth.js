@@ -35,7 +35,7 @@ if (!document.getElementById("popupStyles")) {
     document.head.appendChild(style);
 }
 
-const API_BASE = (window.API_BASE || "http://127.0.0.1:5000");
+const API_BASE = window.API_BASE || "";
 
 
 function togglePassword() {
@@ -108,9 +108,14 @@ function getToken() {
 }
 
 function resetPassword() {
+    const token = getToken();
+    if (!token) {
+        showErrorPopup("Invalid reset link. Please request a new password reset email.");
+        return;
+    }
+
     const newPassword = document.getElementById("newPassword").value.trim();
     const confirmPassword = document.getElementById("confirmPassword") ? document.getElementById("confirmPassword").value.trim() : newPassword;
-    const token = getToken();
 
     if (!newPassword) {
         showErrorPopup("Please enter a new password.");

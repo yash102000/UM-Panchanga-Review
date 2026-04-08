@@ -8,13 +8,12 @@ from flask import request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer
 
-APP_SECRET_KEY = os.getenv("SECRET_KEY", "super-secret-key-change-me")
+APP_SECRET_KEY = os.getenv("SECRET_KEY", os.getenv("FLASK_SECRET_KEY", "change-me-if-not-set"))
 token_serializer = URLSafeTimedSerializer(APP_SECRET_KEY)
 
+EMAIL       = os.getenv("MAIL_SENDER", "")
+PASSWORD    = os.getenv("MAIL_APP_PASSWORD", "")
 
-EMAIL       = os.getenv("MAIL_SENDER", "ruraldevelopment2024@gmail.com")
-PASSWORD    = os.getenv("MAIL_APP_PASSWORD", "gres jnnt dykr zcpo")
-# If RESET_BASE_URL not set, we will fall back to the incoming request host.
 RESET_BASE  = os.getenv("RESET_BASE_URL")
 SMTP_HOST   = os.getenv("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT   = int(os.getenv("SMTP_PORT", "587"))
@@ -115,9 +114,9 @@ def login_user(conn):
     )
     user = cursor.fetchone()
 
-    # The password is the 4th column (index 3) based on the schema in app.py
+
     if user and check_password_hash(user[3], password):
-        # Generate an auth token for the user
+        
         auth_token = token_serializer.dumps(email, salt="auth-salt")
         return jsonify({
             "status": "success", 
@@ -177,6 +176,6 @@ def reset_password(conn):
     conn.commit()
 
     if cursor.rowcount == 0:
-        return jsonify({"message": "Invalid or expired reset link."}), 400
+        return jsonify({"message": "Reset token is invalid or already used. Please request a new reset password link."}), 400
 
     return jsonify({"message": "Password updated successfully! You can now log in."}), 200
