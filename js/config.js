@@ -14,7 +14,7 @@
         normalize(window.API_BASE_URL) ||
         normalize(stored) ||
         normalize(origin) ||
-        "";
+        "https://2plrprlxqh.execute-api.ap-south-1.amazonaws.com/prod";
 
     window.API_BASE = resolved;
     if (window.localStorage && resolved !== stored) {
