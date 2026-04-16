@@ -10,11 +10,15 @@
             ? window.location.origin
             : "";
 
+    // Skip GitHub Pages and other static hosts - use AWS endpoint instead
+    const isStaticHost = origin.includes("github.io") || origin.includes("netlify.app") || origin.includes("vercel.app");
+    const originToUse = !isStaticHost && origin ? origin : "";
+
     const resolved =
         normalize(window.API_BASE_URL) ||
         normalize(stored) ||
-        normalize(origin) ||
-        "";
+        normalize(originToUse) ||
+        "https://2plrprlxqh.execute-api.ap-south-1.amazonaws.com/prod";
 
     window.API_BASE = resolved;
     if (window.localStorage && resolved !== stored) {
