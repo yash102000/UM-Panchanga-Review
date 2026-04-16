@@ -4,7 +4,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="repla
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pymysql
-from auth import register_user, login_user, forgot_password, reset_password, token_serializer
+from backend.auth import register_user, login_user, forgot_password, reset_password, token_serializer
 from itsdangerous import SignatureExpired, BadSignature
 try:
     from dotenv import load_dotenv
