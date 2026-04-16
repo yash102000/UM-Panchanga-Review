@@ -12,13 +12,13 @@ app = Flask(__name__,
 CORS(app)
 
 
-DB_HOST            = os.getenv("DB_HOST", "localhost")
-DB_USER            = os.getenv("DB_USER", "root")
-DB_PASSWORD        = os.getenv("DB_PASSWORD", "")
-DB_NAME            = os.getenv("DB_NAME", "panchanga_db")
-DB_PORT            = int(os.getenv("DB_PORT", "3306"))
-DB_CHARSET         = os.getenv("DB_CHARSET", "utf8mb4")
-DB_CONNECT_TIMEOUT = int(os.getenv("DB_CONNECT_TIMEOUT", "5"))
+DB_HOST            = "panchanga-db.cxgu0ko8m1a7.ap-south-1.rds.amazonaws.com"
+DB_USER            = "admin"
+DB_PASSWORD        = "Pthinks123"
+DB_NAME            = "panchanga_db"
+DB_PORT            = 3306
+DB_CHARSET         = "utf8mb4"
+DB_CONNECT_TIMEOUT = 5
 
 @app.route("/reset-page")
 def reset_page():
@@ -32,12 +32,7 @@ TABLE_MAP = {
     "Sanskrit": "panchanga_updatedsanskrit",
     "Marathi":  "panchanga_updatedmarathi"
 }
-TABLE_MAP_ENV = os.getenv("TABLE_MAP")
-if TABLE_MAP_ENV:
-    try:
-        TABLE_MAP = json.loads(TABLE_MAP_ENV)
-    except Exception as exc:
-        print(f"[WARN] Failed to parse TABLE_MAP env, using defaults. Details: {exc}")
+# TABLE_MAP is hardcoded above, no env override needed
 
 def get_db():
     return pymysql.connect(
@@ -76,8 +71,7 @@ def init_db():
 
 @app.route("/")
 def home():
-    return "API Running"
-
+    return app.send_static_file("pages/login.html")
 
 
 @app.route("/signup", methods=["POST"])
@@ -144,18 +138,19 @@ def reset():
 def save():
     conn = None
     try:
-        auth_header = request.headers.get("Authorization")
-        if not auth_header or not auth_header.startswith("Bearer "):
-            return jsonify({"message": "Missing or invalid authorization token."}), 401
+        # auth_header = request.headers.get("Authorization")
+        # if not auth_header or not auth_header.startswith("Bearer "):
+        #     return jsonify({"message": "Missing or invalid authorization token."}), 401
             
-        token = auth_header.split(" ")[1]
-        try:
-            # Token valid for 24 hours
-            email = token_serializer.loads(token, salt="auth-salt", max_age=86400)
-        except SignatureExpired:
-            return jsonify({"message": "Session expired. Please log in again."}), 401
-        except BadSignature:
-            return jsonify({"message": "Invalid token. Please log in again."}), 401
+        # token = auth_header.split(" ")[1]
+        # try:
+        #     # Token valid for 24 hours
+        #     email = token_serializer.loads(token, salt="auth-salt", max_age=86400)
+        #   except SignatureExpired:
+        #     return jsonify({"message": "Session expired. Please log in again."}), 401
+        # except BadSignature:
+        #     return jsonify({"message": "Invalid token. Please log in again."}), 401
+        pass
 
         data = request.get_json(force=True, silent=True)
 

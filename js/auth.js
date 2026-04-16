@@ -67,7 +67,7 @@ document.getElementById("loginForm")?.addEventListener("submit", function (e) {
                 if (data.token) {
                     localStorage.setItem("authToken", data.token);
                 }
-                window.location.replace("../review_page.html");
+                window.location.replace("../index.html");
             } else {
                 showErrorPopup(data.message || "Invalid email or password.");
             }

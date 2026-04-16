@@ -1,0 +1,80 @@
+UM PANCHANGA REVIEW PANEL - QUICK START
+=========================================
+
+FOR WINDOWS USERS
+=================
+
+FIRST TIME ONLY:
+1. Install Python from https://www.python.org/downloads/
+   (Check "Add Python to PATH" during install)
+
+EVERY TIME YOU WANT TO USE THE APP:
+1. Double-click: START.bat
+
+THAT'S IT!
+
+The script will:
+✓ Install all required software
+✓ Start the backend server
+✓ Start ngrok (for public access)
+✓ Show you the links
+
+
+WHAT YOU'LL SEE:
+================
+
+After running START.bat, you'll see 1-2 new windows open:
+
+1. "UM Panchanga Backend"
+   - This is the server
+   - Leave it running
+   - Don't close it
+
+2. "UM Panchanga - ngrok Tunnel" (optional)
+   - This makes your app public
+   - Look for the "Forwarding" URL
+   - This is your public link to share
+
+
+OPENING YOUR APP:
+=================
+
+LOCAL (Just for you):
+→ Open browser: http://localhost:5000
+
+PUBLIC (Share with others):
+→ Check ngrok window for URL
+→ Copy the HTTPS link
+→ Share it
+
+
+STOPPING THE APP:
+=================
+Close both windows (Backend + ngrok)
+
+
+TROUBLESHOOTING:
+================
+
+"Python not found"
+→ Reinstall Python and check "Add Python to PATH"
+
+"Port already in use"
+→ Close the Backend window and try again
+
+"Server unreachable"
+→ Make sure Backend window is still running
+
+"ngrok not found"
+→ Download from https://ngrok.com/download
+
+
+NEED HELP WITH SETUP?
+=====================
+Read: SETUP_GUIDE.md
+(Open it in any text editor)
+
+
+THAT'S ALL!
+===========
+Just double-click START.bat and you're good to go!

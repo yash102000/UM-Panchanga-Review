@@ -8,15 +8,15 @@ from flask import request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer
 
-APP_SECRET_KEY = os.getenv("SECRET_KEY", os.getenv("FLASK_SECRET_KEY", "change-me-if-not-set"))
+APP_SECRET_KEY = "change-me-if-not-set"
 token_serializer = URLSafeTimedSerializer(APP_SECRET_KEY)
 
-EMAIL       = os.getenv("MAIL_SENDER", "")
-PASSWORD    = os.getenv("MAIL_APP_PASSWORD", "")
+EMAIL       = ""
+PASSWORD    = ""
 
-RESET_BASE  = os.getenv("RESET_BASE_URL")
-SMTP_HOST   = os.getenv("SMTP_HOST", "smtp.gmail.com")
-SMTP_PORT   = int(os.getenv("SMTP_PORT", "587"))
+RESET_BASE  = "https://localhost:5000"
+SMTP_HOST   = "smtp.gmail.com"
+SMTP_PORT   = 587
 
 
 def send_reset_email(to_email, token):
