@@ -21,7 +21,6 @@ app = Flask(
 
 CORS(app)
 
-# ================= DATABASE =================
 DB_HOST = os.getenv("DB_HOST")
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
@@ -41,7 +40,6 @@ def init_db():
     try:
         conn = get_db()
         cursor = conn.cursor()
-        # Ensure 'users' table has all required columns including reset_token
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -57,14 +55,11 @@ def init_db():
     except Exception as e:
         print("❌ DATABASE INITIALIZATION ERROR:", e)
 
-# Run initialization immediately when the app starts
 init_db()
 
-# ================= ROUTES =================
 
 @app.route("/")
 def home():
-    # Show login page first as requested
     return app.send_static_file("pages/login.html")
 
 @app.route("/login", methods=["GET"])
@@ -150,43 +145,61 @@ def save():
         cursor = conn.cursor()
 
         for item in data:
-            # 1. Determine the target table based on language
             lang = item.get("language", "English").strip().lower()
             table_name = f"panchanga_updated{lang}"
+            
+            # 1. Identify fields to update
+            update_fields = item.get("update_fields", [])
+            if not update_fields:
+                continue
 
-            # 2. Extract all fields
-            # The keys match the property names in your JS Panchanga_Database class
-            fields = [
-                item.get("date"), item.get("month"), item.get("year"),
-                item.get("samvatsara"), item.get("ayana"), item.get("rutu"),
-                item.get("masa"), item.get("masaNiyamaka"), item.get("paksha"),
-                item.get("thithi"), item.get("calendarmark"), item.get("vasara"),
-                item.get("nakshatra"), item.get("yoga"), item.get("karana"),
-                item.get("sunrise"), item.get("sunset"), item.get("shradhatithi"),
-                item.get("vishesha")
-            ]
+            # Keys from JS mapped to DB columns
+            field_map = {
+                "rutu": "rutu",
+                "masa": "masa",
+                "masaNiyamaka": "masaniyamaka",
+                "paksha": "paksha",
+                "thithi": "tithi",
+                "vasara": "vasara",
+                "nakshatra": "nakshatra",
+                "yoga": "yoga",
+                "karana": "karana",
+                "shradhatithi": "shradhatithi",
+                "vishesha": "vishesha"
+            }
 
-            # 3. Build the SQL Query
+            columns = ["date", "month", "year"]
+            values = [item.get("date"), item.get("month"), item.get("year")]
+            update_parts = []
+
+            for field in update_fields:
+                db_col = field_map.get(field)
+                if db_col:
+                    columns.append(db_col)
+                    val = item.get(field)
+                    values.append(val)
+                    update_parts.append(f"{db_col} = VALUES({db_col})")
+
+            # 2. Build the dynamic SQL (INSERT ON DUPLICATE KEY UPDATE)
+            # This requires a UNIQUE index on (date, month, year) in the DB
+            placeholders = ", ".join(["%s"] * len(columns))
+            cols_str = ", ".join(columns)
+            update_str = ", ".join(update_parts)
+
             sql = f"""
-                INSERT INTO {table_name} (
-                    date, month, year, 
-                    samvatsara, ayana, rutu, masa, masaniyamaka, 
-                    paksha, tithi, calendarmark, vasara, 
-                    nakshatra, yoga, karana, 
-                    sunrise, sunset, shradhatithi, vishesha
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO {table_name} ({cols_str}) 
+                VALUES ({placeholders})
+                ON DUPLICATE KEY UPDATE {update_str}
             """
 
-            cursor.execute(sql, tuple(fields))
+            cursor.execute(sql, tuple(values))
 
         conn.commit()
         conn.close()
-        return jsonify({"message": "Successfully saved all data to the database!"}), 200
+        return jsonify({"message": "Successfully updated selected data!"}), 200
     except Exception as e:
         print("Save error:", e)
         return jsonify({"message": f"Error saving data: {str(e)}"}), 500
-
-# ================= START =================
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))

@@ -4,6 +4,20 @@
     <meta charset="UTF-8">
     <title>UM Panchanga Review Panel</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .col-selector {
+            transform: scale(1.2);
+            margin-top: 5px;
+            cursor: pointer;
+        }
+        .data-col {
+            text-align: center;
+            font-size: 13px;
+            line-height: 1.2;
+            vertical-align: top;
+            padding-bottom: 5px !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -62,34 +76,26 @@
 
         <div class="table-container">
             <table id="dataTable">
-
                 <thead>
                     <tr>
-                        <th>Select</th>
+                        <th style="min-width: 50px;">Select Row</th>
                         <th>Date</th>
                         <th>Month</th>
                         <th>Year</th>
-                        <th>Samvatsara</th>
-                        <th>Ayana</th>
-                        <th>Rutu</th>
-                        <th>Masa</th>
-                        <th>Masa Niyamaka</th>
-                        <th>Paksha</th>
-                        <th>Thithi</th>
-                        <th>Calendar Mark</th>
-                        <th>Vasara</th>
-                        <th>Nakshatra</th>
-                        <th>Yoga</th>
-                        <th>Karana</th>
-                        <th>Sunrise</th>
-                        <th>Sunset</th>
-                        <th>Shradha Tithi</th>
-                        <th>Vishesha</th>
+                        <th class="data-col">Rutu<br><input type="checkbox" class="col-selector" data-field="rutu" checked></th>
+                        <th class="data-col">Masa<br><input type="checkbox" class="col-selector" data-field="masa" checked></th>
+                        <th class="data-col">Masa Niyamaka<br><input type="checkbox" class="col-selector" data-field="masaNiyamaka" checked></th>
+                        <th class="data-col">Paksha<br><input type="checkbox" class="col-selector" data-field="paksha" checked></th>
+                        <th class="data-col">Thithi<br><input type="checkbox" class="col-selector" data-field="thithi" checked></th>
+                        <th class="data-col">Vasara<br><input type="checkbox" class="col-selector" data-field="vasara" checked></th>
+                        <th class="data-col">Nakshatra<br><input type="checkbox" class="col-selector" data-field="nakshatra" checked></th>
+                        <th class="data-col">Yoga<br><input type="checkbox" class="col-selector" data-field="yoga" checked></th>
+                        <th class="data-col">Karana<br><input type="checkbox" class="col-selector" data-field="karana" checked></th>
+                        <th class="data-col">Shradha Tithi<br><input type="checkbox" class="col-selector" data-field="shradhatithi" checked></th>
+                        <th class="data-col">Vishesha<br><input type="checkbox" class="col-selector" data-field="vishesha" checked></th>
                     </tr>
                 </thead>
-
                 <tbody></tbody>
-
             </table>
         </div>
 

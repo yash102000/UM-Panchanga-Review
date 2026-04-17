@@ -1,94 +1,58 @@
 function submitData() {
-
     const rows = document.querySelectorAll("#dataTable tbody tr");
-
-    if (!rows.length) {
-        alert("No data");
-        return;
-    }
-
     const language = document.getElementById("language").value;
 
-    if (!language) {
-        alert("Select language");
+    if (!rows.length) { alert("No data generated."); return; }
+    if (!language) { alert("Please select a language."); return; }
+
+    // 1. Identify which columns are selected for update
+    const columnSelectors = document.querySelectorAll(".col-selector");
+    const selectedFields = []; // e.g., ["rutu", "masa"]
+    const selectedIndices = []; // e.g., [0, 1]
+
+    columnSelectors.forEach((selector, index) => {
+        if (selector.checked) {
+            selectedFields.push(selector.getAttribute("data-field"));
+            selectedIndices.push(index);
+        }
+    });
+
+    if (selectedFields.length === 0) {
+        alert("Please select at least one column (checkbox in header) to update.");
         return;
     }
 
     let list = [];
-    let valid = true;
-    let anySelected = false;
+    let anySelectedRow = false;
 
     rows.forEach(row => {
-
         const checkbox = row.querySelector(".rowCheckbox");
-
-        
         if (!checkbox || !checkbox.checked) return;
 
-        anySelected = true;
-        row.classList.remove("invalid");
-
+        anySelectedRow = true;
         const inputs = row.querySelectorAll("input:not([type='checkbox'])");
         const cells = row.querySelectorAll("td");
 
-        const date  = cells[1]?.innerText.trim();
-        const month = cells[2]?.innerText.trim();
-        const year  = cells[3]?.innerText.trim();
+        const payload = {
+            language: language,
+            date: cells[1]?.innerText.trim(),
+            month: cells[2]?.innerText.trim(),
+            year: cells[3]?.innerText.trim(),
+            update_fields: selectedFields // Tell backend which fields to update
+        };
 
-        let rowValid = true;
-
-        inputs.forEach(input => {
-            if (!input.value || !input.value.trim()) {
-                rowValid = false;
-            }
+        // Only add the fields that were selected in the header
+        selectedIndices.forEach((inputIdx, i) => {
+            const fieldName = selectedFields[i];
+            const value = inputs[inputIdx].value.trim();
+            payload[fieldName] = value;
         });
 
-        if (!rowValid || !date || !month || !year) {
-            valid = false;
-            row.classList.add("invalid");
-            return;
-        }
-
-        if (inputs.length < 16) {
-            console.log("Input count mismatch:", inputs.length);
-            valid = false;
-            row.classList.add("invalid");
-            return;
-        }
-
-        const obj = new Panchanga_Database(
-            language,
-            date,
-            month,
-            year,
-            inputs[0].value.trim(),
-            inputs[1].value.trim(),
-            inputs[2].value.trim(),
-            inputs[3].value.trim(),
-            inputs[4].value.trim(),
-            inputs[5].value.trim(),
-            inputs[6].value.trim(),
-            inputs[7].value.trim(),
-            inputs[8].value.trim(),
-            inputs[9].value.trim(),
-            inputs[10].value.trim(),
-            inputs[11].value.trim(),
-            inputs[12].value.trim(),
-            inputs[13].value.trim(),
-            inputs[14].value.trim(),
-            inputs[15].value.trim()
-        );
-
-        list.push(obj);
+        list.push(payload);
     });
 
-    if (!anySelected) {
-        alert("Select at least one row to submit");
-        return;
-    }
-
-    if (!valid) {
-        alert("Fill all fields in the selected rows");
+    if (!anySelectedRow) {
+        alert("Please select at least one row (checkbox on left) to submit.");
         return;
     }
 
@@ -103,22 +67,18 @@ function submitData() {
         },
         body: JSON.stringify(list)
     })
-        .then(res => Promise.all([res.ok, res.json()]))
-        .then(([ok, data]) => {
-            if (!ok) {
-                alert(data.message || "Error saving data. Please ensure you are logged in.");
-                if (data.message && data.message.toLowerCase().includes("log in")) {
-                    window.location.replace("pages/login.html");
-                }
-            } else {
-                alert(data.message);
-                console.log("Submitted Data:", list);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Error saving data. Server unreachable.");
-        });
+    .then(res => Promise.all([res.ok, res.json()]))
+    .then(([ok, data]) => {
+        if (!ok) {
+            alert(data.message || "Error saving data.");
+        } else {
+            alert(data.message || "Data updated successfully!");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Server error. Please check your connection.");
+    });
 }
 
 

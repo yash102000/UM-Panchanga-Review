@@ -29,7 +29,7 @@ function generateRows() {
             <td>${month}</td>
             <td>${year}</td>
 
-            ${Array(16).fill('<td><input></td>').join("")}
+            ${Array(11).fill('<td><input></td>').join("")}
         `;
 
 //         row.innerHTML = `
