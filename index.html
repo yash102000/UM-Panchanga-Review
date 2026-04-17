@@ -5,6 +5,16 @@
     <meta charset="UTF-8">
     <title>UM Panchanga Review Panel</title>
     <link rel="stylesheet" href="css/style.css">
+    <script>
+        // Authentication Guard: Check before rendering any content
+        (function () {
+            if (localStorage.getItem("isLoggedIn") !== "true") {
+                // Determine the correct login path based on environment
+                const loginPath = window.location.hostname === 'localhost' ? 'login.html' : '/login';
+                window.location.replace(loginPath);
+            }
+        })();
+    </script>
     <style>
         .col-selector {
             transform: scale(1.2);
@@ -160,17 +170,10 @@
 
     <script src="js/config.js"></script>
     <script>
-        // Authentication Guard
-        (function () {
-            if (localStorage.getItem("isLoggedIn") !== "true") {
-                window.location.replace("/login");
-            }
-        })();
-
         function logoutUser() {
             localStorage.removeItem("isLoggedIn");
             localStorage.removeItem("authToken");
-            window.location.replace("/login");
+            window.location.replace(window.location.hostname === 'localhost' ? 'login.html' : '/login');
         }
     </script>
     <!-- The config.js script handles Dynamic Backend URL detection. No hardcoded overrides needed. -->

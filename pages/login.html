@@ -5,6 +5,15 @@
     <meta charset="UTF-8">
     <title>UM Panchanga Review Panel - Login</title>
     <link rel="stylesheet" href="../css/auth.css">
+    <script>
+        // Check if already logged in
+        (function() {
+            if (localStorage.getItem("isLoggedIn") === "true") {
+                const dashboardPath = window.location.hostname === 'localhost' ? '../index.html' : '/dashboard';
+                window.location.replace(dashboardPath);
+            }
+        })();
+    </script>
 </head>
 
 <body>
@@ -41,14 +50,6 @@
     </div>
 
     <script src="../js/config.js"></script>
-    <script>
-        // Check if already logged in
-        (function() {
-            if (localStorage.getItem("isLoggedIn") === "true") {
-                window.location.replace("/dashboard");
-            }
-        })();
-    </script>
     <script src="../js/auth.js"></script>
 </body>
 
