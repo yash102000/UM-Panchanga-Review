@@ -1,7 +1,7 @@
 import sys, io, os
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, redirect
 from flask_cors import CORS
 import pymysql
 from backend.auth import register_user, login_user, forgot_password, reset_password, token_serializer
@@ -64,11 +64,17 @@ init_db()
 
 @app.route("/")
 def home():
-    return app.send_static_file("index.html")
+    # Show login page first as requested
+    return app.send_static_file("pages/login.html")
 
 @app.route("/login", methods=["GET"])
 def login_page():
     return app.send_static_file("pages/login.html")
+
+@app.route("/dashboard", methods=["GET"])
+def dashboard():
+    # The main index page is now behind a dedicated route
+    return app.send_static_file("index.html")
 
 @app.route("/signup", methods=["GET"])
 def signup_page():
@@ -93,7 +99,7 @@ def signup_html():
 
 @app.route("/index.html")
 def index_html():
-    return home()
+    return redirect("/dashboard")
 
 # ================= AUTH APIs =================
 
@@ -157,7 +163,7 @@ def save():
                 item.get("thithi"), item.get("calendarmark"), item.get("vasara"),
                 item.get("nakshatra"), item.get("yoga"), item.get("karana"),
                 item.get("sunrise"), item.get("sunset"), item.get("shradhatithi"),
-                item.get("todaysSpecial")
+                item.get("vishesha")
             ]
 
             # 3. Build the SQL Query
@@ -167,7 +173,7 @@ def save():
                     samvatsara, ayana, rutu, masa, masaniyamaka, 
                     paksha, tithi, calendarmark, vasara, 
                     nakshatra, yoga, karana, 
-                    sunrise, sunset, shradhatithi, todaysSpecial
+                    sunrise, sunset, shradhatithi, vishesha
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
 

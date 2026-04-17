@@ -5,7 +5,7 @@ class Panchanga_Database {
         samvatsara, ayana, rutu, masa, masaNiyamaka,
         paksha, thithi, calendarmark, vasara,
         nakshatra, yoga, karana,
-        sunrise, sunset, shradhatithi, todaysSpecial
+        sunrise, sunset, shradhatithi, vishesha
     ) {
         this.language = language;
 
@@ -28,6 +28,6 @@ class Panchanga_Database {
         this.sunrise = sunrise;
         this.sunset = sunset;
         this.shradhatithi = shradhatithi;
-        this.todaysSpecial = todaysSpecial;
+        this.vishesha = vishesha;
     }
 }
