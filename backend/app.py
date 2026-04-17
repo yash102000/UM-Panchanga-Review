@@ -66,12 +66,19 @@ init_db()
 def home():
     return app.send_static_file("pages/login.html")
 
-# ✅ FIXED SIGNUP PAGE ROUTE
-@app.route("/signup-page")
+@app.route("/login", methods=["GET"])
+def login_page():
+    return app.send_static_file("pages/login.html")
+
+@app.route("/signup", methods=["GET"])
 def signup_page():
     return app.send_static_file("pages/signup.html")
 
-@app.route("/reset-page")
+@app.route("/forgot-page", methods=["GET"])
+def forgot_page():
+    return app.send_static_file("pages/forgot.html")
+
+@app.route("/reset-page", methods=["GET"])
 def reset_page():
     return app.send_static_file("pages/reset.html")
 
@@ -112,8 +119,6 @@ def reset():
     except Exception as e:
         print("Reset error:", e)
         return jsonify({"message": "Error resetting password"}), 500
-
-# ================= SAVE API =================
 
 @app.route("/save", methods=["POST"])
 def save():
