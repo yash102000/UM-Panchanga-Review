@@ -82,6 +82,19 @@ def forgot_page():
 def reset_page():
     return app.send_static_file("pages/reset.html")
 
+# Fallback routes for .html legacy links
+@app.route("/login.html")
+def login_html():
+    return login_page()
+
+@app.route("/signup.html")
+def signup_html():
+    return signup_page()
+
+@app.route("/index.html")
+def index_html():
+    return home()
+
 # ================= AUTH APIs =================
 
 @app.route("/signup", methods=["POST"])

@@ -67,7 +67,7 @@ document.getElementById("loginForm")?.addEventListener("submit", function (e) {
                 if (data.token) {
                     localStorage.setItem("authToken", data.token);
                 }
-                window.location.replace("../index.html");
+                window.location.replace("/");
             } else {
                 showErrorPopup(data.message || "Invalid email or password.");
             }
@@ -95,7 +95,7 @@ document.getElementById("forgotForm")?.addEventListener("submit", function (e) {
         .then(data => {
             alert(data.message || "Reset link sent! Check your email.");
             setTimeout(() => {
-                window.location.href = "login.html";
+                window.location.href = "/login";
             }, 1500);
         })
         .catch(() => showErrorPopup("Server error. Please try again."));
@@ -136,7 +136,7 @@ function resetPassword() {
         .then(([ok, data]) => {
             if (ok) {
                 alert(data.message || "Password updated successfully! Redirecting to login...");
-                window.location.replace("/pages/login.html");
+                window.location.replace("/login");
             } else {
                 showErrorPopup(data.message || "Reset failed. Please try again.");
             }
@@ -169,7 +169,7 @@ document.getElementById("signupForm")?.addEventListener("submit", function (e) {
                 showErrorPopup(data.message || "Signup failed. Please try again.");
             } else {
                 alert(data.message || "Registered successfully! Please log in.");
-                window.location.href = "login.html";
+                window.location.href = "/login";
             }
         })
         .catch(() => showErrorPopup("Server error. Please try again."));
