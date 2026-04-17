@@ -71,8 +71,8 @@ def login_page():
 
 @app.route("/dashboard", methods=["GET"])
 def dashboard():
-    # The main index page is now behind a dedicated route
-    return app.send_static_file("index.html")
+    # The main dashboard page
+    return app.send_static_file("dashboard.html")
 
 @app.route("/signup", methods=["GET"])
 def signup_page():

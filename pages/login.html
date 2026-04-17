@@ -9,7 +9,7 @@
         // Check if already logged in
         (function() {
             if (localStorage.getItem("isLoggedIn") === "true") {
-                const dashboardPath = window.location.hostname === 'localhost' ? '../index.html' : '/dashboard';
+                const dashboardPath = window.location.hostname === 'localhost' ? '../dashboard.html' : '/dashboard';
                 window.location.replace(dashboardPath);
             }
         })();

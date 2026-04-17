@@ -67,7 +67,8 @@ document.getElementById("loginForm")?.addEventListener("submit", function (e) {
                 if (data.token) {
                     localStorage.setItem("authToken", data.token);
                 }
-                window.location.replace("/dashboard");
+                const dashboardPath = window.location.hostname === 'localhost' ? '../dashboard.html' : '/dashboard';
+                window.location.replace(dashboardPath);
             } else {
                 showErrorPopup(data.message || "Invalid email or password.");
             }
