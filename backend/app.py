@@ -137,22 +137,48 @@ def reset():
 def save():
     try:
         data = request.get_json()
-
         if not data:
-            return jsonify({"message": "No data"}), 400
+            return jsonify({"message": "No data received"}), 400
 
         conn = get_db()
         cursor = conn.cursor()
 
         for item in data:
-            # Note: Ensure panchanga_updatedenglish table exists in your DB
-            cursor.execute("INSERT INTO panchanga_updatedenglish (date) VALUES (%s)", (item.get("date"),))
+            # 1. Determine the target table based on language
+            lang = item.get("language", "English").strip().lower()
+            table_name = f"panchanga_updated{lang}"
+
+            # 2. Extract all fields
+            # The keys match the property names in your JS Panchanga_Database class
+            fields = [
+                item.get("date"), item.get("month"), item.get("year"),
+                item.get("samvatsara"), item.get("ayana"), item.get("rutu"),
+                item.get("masa"), item.get("masaNiyamaka"), item.get("paksha"),
+                item.get("thithi"), item.get("calendarmark"), item.get("vasara"),
+                item.get("nakshatra"), item.get("yoga"), item.get("karana"),
+                item.get("sunrise"), item.get("sunset"), item.get("shradhatithi"),
+                item.get("todaysSpecial")
+            ]
+
+            # 3. Build the SQL Query
+            sql = f"""
+                INSERT INTO {table_name} (
+                    date, month, year, 
+                    samvatsara, ayana, rutu, masa, masaniyamaka, 
+                    paksha, tithi, calendarmark, vasara, 
+                    nakshatra, yoga, karana, 
+                    sunrise, sunset, shradhatithi, todaysSpecial
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+
+            cursor.execute(sql, tuple(fields))
 
         conn.commit()
-        return jsonify({"message": "Saved"})
+        conn.close()
+        return jsonify({"message": "Successfully saved all data to the database!"}), 200
     except Exception as e:
         print("Save error:", e)
-        return jsonify({"message": "Error saving data"}), 500
+        return jsonify({"message": f"Error saving data: {str(e)}"}), 500
 
 # ================= START =================
 
