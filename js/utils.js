@@ -8,6 +8,12 @@ function resetAll() {
     document.getElementById("language").value = "";
     document.getElementById("fromDate").value = "";
     document.getElementById("toDate").value = "";
+    
+    // Also clear the bulk entry section
+    const bulkField = document.getElementById("bulkField");
+    const bulkValue = document.getElementById("bulkValue");
+    if (bulkField) bulkField.value = "";
+    if (bulkValue) bulkValue.value = "";
 }
 
 function applyBulkValue() {

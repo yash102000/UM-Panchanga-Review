@@ -69,7 +69,7 @@ function submitData() {
             alert(data.message || "Error saving data.");
         } else {
             alert(data.message || "Data updated successfully!");
-            if (typeof clearAll === "function") clearAll();
+            if (typeof resetAll === "function") resetAll();
             if (typeof updateRowCount === "function") updateRowCount();
         }
     })
