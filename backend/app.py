@@ -1,4 +1,7 @@
 import sys, io, os
+# Add the project root to sys.path so 'backend' can be imported
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 from flask import Flask, request, jsonify, redirect
@@ -155,6 +158,8 @@ def save():
 
             # Keys from JS mapped to DB columns
             field_map = {
+                "samvatsara": "samvatsara",
+                "ayana": "ayana",
                 "rutu": "rutu",
                 "masa": "masa",
                 "masaNiyamaka": "masaniyamaka",
@@ -164,8 +169,11 @@ def save():
                 "nakshatra": "nakshatra",
                 "yoga": "yoga",
                 "karana": "karana",
+                "sunrise": "sunrise",
+                "sunset": "sunset",
                 "shradhatithi": "shradhatithi",
-                "vishesha": "vishesha"
+                "vishesha": "vishesha",
+                "calendarmark": "calendarmark"
             }
 
             columns = ["date", "month", "year"]

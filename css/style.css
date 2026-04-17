@@ -54,6 +54,13 @@ body {
     flex-direction: column;
 }
 
+.form-group label {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+}
+
 input, select {
     padding: 8px;
     border: 1px solid #ccc;
@@ -77,29 +84,49 @@ button {
 .btn-success { background: #16a34a; color: white; }
 .btn-danger { background: #dc2626; color: white; }
 
+.card h3 {
+    font-size: 22px;
+    margin-bottom: 15px;
+}
+
 .table-container {
     overflow-x: auto;
 }
 
 table {
     width: 100%;
-    min-width: 1500px;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 th {
     background: #e97211;
     color: white;
-    padding: 8px;
+    padding: 12px 5px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
 }
 
 td {
-    padding: 6px;
+    padding: 12px 5px;
     border-bottom: 1px solid #ddd;
+    text-align: center;
+    font-size: 15px;
 }
 
 td input, td select {
     width: 100%;
+    font-size: 15px;
+    padding: 6px;
+}
+
+td input[readonly] {
+    background: #ffffff;
+    border: 1px solid #f0f0f0;
+    cursor: default;
+    box-shadow: none;
+    color: #444;
 }
 
 tr.invalid {

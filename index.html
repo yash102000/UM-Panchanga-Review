@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>UM Panchanga Review Panel</title>
@@ -10,127 +11,175 @@
             margin-top: 5px;
             cursor: pointer;
         }
+
         .data-col {
             text-align: center;
-            font-size: 13px;
+            font-size: 15px;
             line-height: 1.2;
-            vertical-align: top;
-            padding-bottom: 5px !important;
+            vertical-align: middle;
+            width: 120px;
+        }
+
+        th,
+        td {
+            text-align: center !important;
+            padding: 10px 5px !important;
+        }
+
+        .date-col {
+            width: 70px;
+        }
+
+        .checkbox-col {
+            width: 50px;
         }
     </style>
 </head>
 
 <body>
 
-<header class="header" style="display:flex; justify-content:space-between; align-items:center; padding: 0 20px;">
-    <span>UM Panchanga Review Panel</span>
-    <button onclick="logoutUser()" style="background:#e53935; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-size:14px; font-weight:600;">Logout</button>
-</header>
+    <header class="header" style="display:flex; justify-content:space-between; align-items:center; padding: 0 20px;">
+        <span>UM Panchanga Review Panel</span>
+        <button onclick="logoutUser()"
+            style="background:#e53935; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-size:14px; font-weight:600;">Logout</button>
+    </header>
 
-<main class="container">
+    <main class="container">
 
-    <section class="card">
-        <h3>Filter & Generate Data</h3>
+        <section class="card">
+            <h3>Filter & Generate Data</h3>
 
-        <div class="form-grid">
+            <div class="form-grid">
 
-            <div class="form-group">
-                <label for="language">Language</label>
-                <select id="language">
-                    <option value="">-- Select --</option>
-                    <option>English</option>
-                    <option>Tamil</option>
-                    <option>Telugu</option>
-                    <option>Kannada</option>
-                    <option>Sanskrit</option>
-                    <option>Marathi</option>
-                </select>
+                <div class="form-group">
+                    <label for="language">Language</label>
+                    <select id="language">
+                        <option value="">-- Select --</option>
+                        <option>English</option>
+                        <option>Tamil</option>
+                        <option>Telugu</option>
+                        <option>Kannada</option>
+                        <option>Sanskrit</option>
+                        <option>Marathi</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="fromDate">From Date</label>
+                    <input type="date" id="fromDate">
+                </div>
+
+                <div class="form-group">
+                    <label for="toDate">To Date (Optional)</label>
+                    <input type="date" id="toDate">
+                </div>
+
+                <div class="form-group">
+                    <label for="rows">Total Rows</label>
+                    <input type="number" id="rows" readonly>
+                </div>
+
             </div>
 
-            <div class="form-group">
-                <label for="fromDate">From Date</label>
-                <input type="date" id="fromDate">
+            <div class="form-actions">
+                <button class="btn btn-primary" onclick="generateRows()">Generate</button>
+                <button class="btn btn-danger" onclick="resetAll()">Reset</button>
             </div>
 
-            <div class="form-group">
-                <label for="toDate">To Date (Optional)</label>
-                <input type="date" id="toDate">
+        </section>
+
+        <section class="card">
+            <h3>Panchanga Data Entry</h3>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="bulkField">Fields</label>
+                    <select id="bulkField">
+                        <option value="">-- Select Field --</option>
+                        <option value="rutu">Rutu</option>
+                        <option value="masa">Masa</option>
+                        <option value="masaNiyamaka">Masa Niyamaka</option>
+                        <option value="paksha">Paksha</option>
+                        <option value="thithi">Thithi</option>
+                        <option value="vasara">Vasara</option>
+                        <option value="nakshatra">Nakshatra</option>
+                        <option value="yoga">Yoga</option>
+                        <option value="karana">Karana</option>
+                        <option value="shradhatithi">Shradha Tithi</option>
+                        <option value="vishesha">Vishesha</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="bulkValue">Data</label>
+                    <input type="text" id="bulkValue" placeholder="Enter value">
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="rows">Total Rows</label>
-                <input type="number" id="rows" readonly>
+            <div class="form-actions">
+                <button class="btn btn-primary" onclick="applyBulkValue()">Apply to Selected</button>
             </div>
 
-        </div>
+            <br>
 
-        <div class="form-actions">
-            <button class="btn btn-primary" onclick="generateRows()">Generate</button>
-            <button class="btn btn-danger" onclick="resetAll()">Reset</button>
-        </div>
+            <div class="table-container">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th class="checkbox-col">Select Row</th>
+                            <th class="date-col">Date</th>
+                            <th class="date-col">Month</th>
+                            <th class="date-col">Year</th>
+                            <th class="data-col" data-field="rutu">Rutu</th>
+                            <th class="data-col" data-field="masa">Masa</th>
+                            <th class="data-col" data-field="masaNiyamaka">Masa Niyamaka</th>
+                            <th class="data-col" data-field="paksha">Paksha</th>
+                            <th class="data-col" data-field="thithi">Thithi</th>
+                            <th class="data-col" data-field="vasara">Vasara</th>
+                            <th class="data-col" data-field="nakshatra">Nakshatra</th>
+                            <th class="data-col" data-field="yoga">Yoga</th>
+                            <th class="data-col" data-field="karana">Karana</th>
+                            <th class="data-col" data-field="shradhatithi">Shradha Tithi</th>
+                            <th class="data-col" data-field="vishesha">Vishesha</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
 
-    </section>
+            <br>
+            <div>
 
-    <section class="card">
-        <h3>Panchanga Data Entry</h3>
+                <button class="btn btn-success" onclick="submitData()">Submit</button>
+                <button class="btn btn-primary" onclick="clearSelectedRows()">Clear</button>
+                <button class="btn btn-danger" onclick="deleteSelectedRows()">Delete</button>
+            </div>
 
-        <div class="table-container">
-            <table id="dataTable">
-                <thead>
-                    <tr>
-                        <th style="min-width: 50px;">Select Row</th>
-                        <th>Date</th>
-                        <th>Month</th>
-                        <th>Year</th>
-                        <th class="data-col">Rutu<br><input type="checkbox" class="col-selector" data-field="rutu" checked></th>
-                        <th class="data-col">Masa<br><input type="checkbox" class="col-selector" data-field="masa" checked></th>
-                        <th class="data-col">Masa Niyamaka<br><input type="checkbox" class="col-selector" data-field="masaNiyamaka" checked></th>
-                        <th class="data-col">Paksha<br><input type="checkbox" class="col-selector" data-field="paksha" checked></th>
-                        <th class="data-col">Thithi<br><input type="checkbox" class="col-selector" data-field="thithi" checked></th>
-                        <th class="data-col">Vasara<br><input type="checkbox" class="col-selector" data-field="vasara" checked></th>
-                        <th class="data-col">Nakshatra<br><input type="checkbox" class="col-selector" data-field="nakshatra" checked></th>
-                        <th class="data-col">Yoga<br><input type="checkbox" class="col-selector" data-field="yoga" checked></th>
-                        <th class="data-col">Karana<br><input type="checkbox" class="col-selector" data-field="karana" checked></th>
-                        <th class="data-col">Shradha Tithi<br><input type="checkbox" class="col-selector" data-field="shradhatithi" checked></th>
-                        <th class="data-col">Vishesha<br><input type="checkbox" class="col-selector" data-field="vishesha" checked></th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
+        </section>
 
-        <br>
-    <div>
+    </main>
 
-        <button class="btn btn-success" onclick="submitData()">Submit</button>
-        <button class="btn btn-primary" onclick="clearSelectedRows()">Clear</button>
-        <button class="btn btn-danger" onclick="deleteSelectedRows()">Delete</button>
-    </div>
+    <script src="js/config.js"></script>
+    <script>
+        // Authentication Guard
+        (function () {
+            if (localStorage.getItem("isLoggedIn") !== "true") {
+                window.location.replace("/login");
+            }
+        })();
 
-    </section>
-
-</main>
-
-<script src="js/config.js"></script>
-<script>
-    // Authentication Guard
-    (function() {
-        if (localStorage.getItem("isLoggedIn") !== "true") {
+        function logoutUser() {
+            localStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("authToken");
             window.location.replace("/login");
         }
-    })();
-
-    function logoutUser() {
-        localStorage.removeItem("isLoggedIn");
-        localStorage.removeItem("authToken");
-        window.location.replace("/login");
-    }
-</script>
-<!-- The config.js script handles Dynamic Backend URL detection. No hardcoded overrides needed. -->
-<script src="js/app.js"></script>
-<script src="js/panchanga.js"></script>
-<script src="js/submit.js"></script>
-<script src="js/utils.js"></script>
+    </script>
+    <!-- The config.js script handles Dynamic Backend URL detection. No hardcoded overrides needed. -->
+    <script src="js/app.js"></script>
+    <script src="js/panchanga.js"></script>
+    <script src="js/submit.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/validation.js"></script>
 
 </body>
+
 </html>

@@ -5,22 +5,13 @@ function submitData() {
     if (!rows.length) { alert("No data generated."); return; }
     if (!language) { alert("Please select a language."); return; }
 
-    // 1. Identify which columns are selected for update
-    const columnSelectors = document.querySelectorAll(".col-selector");
+    // 1. Identify all data columns
+    const columns = document.querySelectorAll("th.data-col");
     const selectedFields = []; // e.g., ["rutu", "masa"]
-    const selectedIndices = []; // e.g., [0, 1]
-
-    columnSelectors.forEach((selector, index) => {
-        if (selector.checked) {
-            selectedFields.push(selector.getAttribute("data-field"));
-            selectedIndices.push(index);
-        }
+    
+    columns.forEach((th) => {
+        selectedFields.push(th.getAttribute("data-field"));
     });
-
-    if (selectedFields.length === 0) {
-        alert("Please select at least one column (checkbox in header) to update.");
-        return;
-    }
 
     let list = [];
     let anySelectedRow = false;
@@ -38,17 +29,22 @@ function submitData() {
             date: cells[1]?.innerText.trim(),
             month: cells[2]?.innerText.trim(),
             year: cells[3]?.innerText.trim(),
-            update_fields: selectedFields // Tell backend which fields to update
+            update_fields: [] // Will only contain fields that have data in this specific row
         };
 
-        // Only add the fields that were selected in the header
-        selectedIndices.forEach((inputIdx, i) => {
-            const fieldName = selectedFields[i];
-            const value = inputs[inputIdx].value.trim();
-            payload[fieldName] = value;
+        // Only add fields that have a value in this row
+        selectedFields.forEach((fieldName, i) => {
+            const value = inputs[i]?.value.trim();
+            
+            if (value && value !== "") {
+                payload[fieldName] = value;
+                payload.update_fields.push(fieldName);
+            }
         });
 
-        list.push(payload);
+        if (payload.update_fields.length > 0) {
+            list.push(payload);
+        }
     });
 
     if (!anySelectedRow) {
@@ -73,6 +69,8 @@ function submitData() {
             alert(data.message || "Error saving data.");
         } else {
             alert(data.message || "Data updated successfully!");
+            if (typeof clearAll === "function") clearAll();
+            if (typeof updateRowCount === "function") updateRowCount();
         }
     })
     .catch(err => {
