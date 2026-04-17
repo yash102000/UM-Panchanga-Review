@@ -64,7 +64,7 @@ init_db()
 
 @app.route("/")
 def home():
-    return app.send_static_file("pages/login.html")
+    return app.send_static_file("index.html")
 
 @app.route("/login", methods=["GET"])
 def login_page():

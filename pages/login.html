@@ -41,6 +41,14 @@
     </div>
 
     <script src="../js/config.js"></script>
+    <script>
+        // Check if already logged in
+        (function() {
+            if (localStorage.getItem("isLoggedIn") === "true") {
+                window.location.replace("/");
+            }
+        })();
+    </script>
     <script src="../js/auth.js"></script>
 </body>
 
