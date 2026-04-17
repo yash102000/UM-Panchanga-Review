@@ -10,15 +10,33 @@
             ? window.location.origin
             : "";
 
-    // Skip GitHub Pages and other static hosts - use AWS endpoint instead
+    // If we're on a common static host, we might need an external backend.
+    // Otherwise, if we're on Render (or similar), we use the same origin.
+    const isLocalhost = origin.includes("localhost") || origin.includes("127.0.0.1");
     const isStaticHost = origin.includes("github.io") || origin.includes("netlify.app") || origin.includes("vercel.app");
-    const originToUse = !isStaticHost && origin ? origin : "";
 
-    const resolved =
-        normalize(window.API_BASE_URL) ||
-        normalize(stored) ||
-        normalize(originToUse) ||
-        "https://2plrprlxqh.execute-api.ap-south-1.amazonaws.com/prod";
+    let resolved = "";
+
+    // Priority:
+    // 1. Explicitly set window.API_BASE_URL (highest priority)
+    // 2. Previously stored URL in localStorage
+    // 3. Current origin (if not a static host like GitHub Pages)
+    // 4. Fallback to AWS (last resort)
+
+    if (window.API_BASE_URL) {
+        resolved = normalize(window.API_BASE_URL);
+    } else if (stored) {
+        resolved = normalize(stored);
+    } else if (origin && !isStaticHost) {
+        resolved = normalize(origin);
+    } else {
+        resolved = "https://2plrprlxqh.execute-api.ap-south-1.amazonaws.com/prod";
+    }
+
+    // Special case: if we are on Render, definitely use the origin
+    if (origin.includes("onrender.com")) {
+        resolved = origin;
+    }
 
     window.API_BASE = resolved;
     if (window.localStorage && resolved !== stored) {

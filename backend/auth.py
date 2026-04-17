@@ -8,19 +8,25 @@ from flask import request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer
 
-APP_SECRET_KEY = "change-me-if-not-set"
+APP_SECRET_KEY = os.getenv("APP_SECRET_KEY", "prod-secret-key-12345")
 token_serializer = URLSafeTimedSerializer(APP_SECRET_KEY)
 
-EMAIL       = ""
-PASSWORD    = ""
+EMAIL       = os.getenv("MAIL_SENDER", "")
+PASSWORD    = os.getenv("MAIL_APP_PASSWORD", "")
 
-RESET_BASE  = "https://localhost:5000"
-SMTP_HOST   = "smtp.gmail.com"
-SMTP_PORT   = 587
+RESET_BASE  = os.getenv("RESET_BASE", "") # Optional override
+SMTP_HOST   = os.getenv("SMTP_HOST", "smtp.gmail.com")
+SMTP_PORT   = int(os.getenv("SMTP_PORT", "587"))
 
 
 def send_reset_email(to_email, token):
-    base = (RESET_BASE or request.url_root or "").rstrip("/")
+    # Dynamic detection of base URL
+    if RESET_BASE:
+        base = RESET_BASE.rstrip("/")
+    else:
+        # fallback to the request root (e.g. https://myapp.onrender.com)
+        base = request.url_root.rstrip("/")
+    
     link = f"{base}/reset-page?token={token}"
 
     

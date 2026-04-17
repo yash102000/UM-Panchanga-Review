@@ -35,7 +35,31 @@ This happens because:
 
 **How to Fix It:**
 * **Option A (AWS):** Log into your AWS RDS Console, examine the Security Group assigned to `panchanga-db`, and add an Inbound Rule for MySQL/Aurora (Port 3306) allowing connection from your current IP (or `0.0.0.0/0` temporarily).
-* **Option B (Local MySQL):** Run a local MySQL server (like XAMPP or MySQL Desktop). Then, override the backend variables in your terminal before running Flask:
+* **Option B (Local MySQL):** Run a local MySQL server (like XAMPP or MySQL Desktop). Then,## 🚀 Deployment on Render
+
+This project is configured for easy deployment on **Render**.
+
+### 1. Create a Web Service
+- Connect your GitHub repository to Render.
+- Set **Runtime** to `Python 3`.
+- Set **Build Command** to `pip install -r requirements.txt`.
+- Set **Start Command** to `gunicorn backend.app:app`. (This is also handled by the `Procfile`).
+
+### 2. Environment Variables
+In the Render dashboard, go to **Environment** and add the following keys:
+- `DB_HOST`: Your RDS endpoint (e.g., `xxx.amazonaws.com`)
+- `DB_USER`: Your DB username
+- `DB_PASSWORD`: Your DB password
+- `DB_NAME`: Your DB name
+- `DB_PORT`: `3306`
+- `APP_SECRET_KEY`: A random long string for security.
+- `MAIL_SENDER`: (Optional) Your Gmail address.
+- `MAIL_APP_PASSWORD`: (Optional) Your Gmail App Password.
+
+### 3. Database Notes
+- The application automatically initializes the `users` table upon startup if it doesn't exist.
+- If you encounter issues, ensure your RDS Security Group allows inbound traffic from `0.0.0.0/0` or the Render IP range.
+ override the backend variables in your terminal before running Flask:
   ```bash
   set DB_HOST=localhost
   set DB_USER=root

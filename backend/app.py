@@ -41,19 +41,24 @@ def init_db():
     try:
         conn = get_db()
         cursor = conn.cursor()
+        # Ensure 'users' table has all required columns including reset_token
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 name VARCHAR(100),
                 email VARCHAR(150) UNIQUE,
-                password VARCHAR(255)
+                password VARCHAR(255),
+                reset_token VARCHAR(255) DEFAULT NULL
             )
         """)
         conn.commit()
         conn.close()
-        print("DB Ready")
+        print("✅ Database initialized and schema verified.")
     except Exception as e:
-        print("DB ERROR:", e)
+        print("❌ DATABASE INITIALIZATION ERROR:", e)
+
+# Run initialization immediately when the app starts
+init_db()
 
 # ================= ROUTES =================
 
@@ -79,7 +84,7 @@ def signup():
         return register_user(conn)
     except Exception as e:
         print("Signup error:", e)
-        return jsonify({"message": "Signup failed"}), 500
+        return jsonify({"message": f"Signup failed: {str(e)}"}), 500
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -97,7 +102,7 @@ def forgot():
         return forgot_password(conn)
     except Exception as e:
         print("Forgot error:", e)
-        return jsonify({"message": "Error"}), 500
+        return jsonify({"message": "Error processing forgot password"}), 500
 
 @app.route("/reset", methods=["POST"])
 def reset():
@@ -106,7 +111,7 @@ def reset():
         return reset_password(conn)
     except Exception as e:
         print("Reset error:", e)
-        return jsonify({"message": "Error"}), 500
+        return jsonify({"message": "Error resetting password"}), 500
 
 # ================= SAVE API =================
 
@@ -122,20 +127,19 @@ def save():
         cursor = conn.cursor()
 
         for item in data:
+            # Note: Ensure panchanga_updatedenglish table exists in your DB
             cursor.execute("INSERT INTO panchanga_updatedenglish (date) VALUES (%s)", (item.get("date"),))
 
         conn.commit()
         return jsonify({"message": "Saved"})
     except Exception as e:
         print("Save error:", e)
-        return jsonify({"message": "Error"}), 500
+        return jsonify({"message": "Error saving data"}), 500
 
 # ================= START =================
 
 if __name__ == "__main__":
-    print("Starting app...")
-    init_db()
-
-    from waitress import serve
     port = int(os.environ.get("PORT", 10000))
+    print(f"🚀 Starting app on port {port}...")
+    from waitress import serve
     serve(app, host="0.0.0.0", port=port)
