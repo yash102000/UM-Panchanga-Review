@@ -1,143 +1,78 @@
-function submitData() {
-    const rows = document.querySelectorAll("#dataTable tbody tr");
-    const language = document.getElementById("language").value;
+async function submitWorklist() {
+    const tables = document.querySelectorAll("#worklistContainer table.work-table");
+    if (tables.length === 0) {
+        alert("No items in worklist.");
+        return;
+    }
 
-    if (!rows.length) { alert("No data generated."); return; }
-    if (!language) { alert("Please select a language."); return; }
+    const list = [];
 
-    // 1. Identify all data columns
-    const columns = document.querySelectorAll("th.data-col");
-    const selectedFields = []; // e.g., ["rutu", "masa"]
-    
-    columns.forEach((th) => {
-        selectedFields.push(th.getAttribute("data-field"));
-    });
-
-    let list = [];
-    let anySelectedRow = false;
-
-    rows.forEach(row => {
-        const checkbox = row.querySelector(".rowCheckbox");
-        if (!checkbox || !checkbox.checked) return;
-
-        anySelectedRow = true;
-        const inputs = row.querySelectorAll("input:not([type='checkbox'])");
-        const cells = row.querySelectorAll("td");
-
+    tables.forEach(table => {
+        const dateStr = table.getAttribute("data-date");
+        const lang = table.getAttribute("data-lang");
+        const inputs = table.querySelectorAll("input");
+        
+        const [y, m, d] = dateStr.split("-");
         const payload = {
-            language: language,
-            date: cells[1]?.innerText.trim(),
-            month: cells[2]?.innerText.trim(),
-            year: cells[3]?.innerText.trim(),
-            update_fields: [] // Will only contain fields that have data in this specific row
+            language: lang,
+            date: d,
+            month: m,
+            year: y,
+            update_fields: []
         };
 
-        // Only add fields that have a value in this row
-        selectedFields.forEach((fieldName, i) => {
-            const value = inputs[i]?.value.trim();
-            
-            if (value && value !== "") {
-                payload[fieldName] = value;
-                payload.update_fields.push(fieldName);
+        let tableHasData = false;
+        inputs.forEach(inp => {
+            const fieldId = inp.getAttribute("data-field");
+            const val = inp.value.trim();
+            if (val !== "") {
+                payload[fieldId] = val;
+                payload.update_fields.push(fieldId);
+                tableHasData = true;
             }
         });
 
-        if (payload.update_fields.length > 0) {
+        if (tableHasData) {
             list.push(payload);
         }
     });
 
-    if (!anySelectedRow) {
-        alert("Please select at least one row (checkbox on left) to submit.");
+    if (list.length === 0) {
+        alert("Please enter at least one value in the tables.");
         return;
     }
 
     const API_BASE = window.API_BASE || "";
     const token = localStorage.getItem("authToken");
 
-    fetch(`${API_BASE}/save`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": token ? `Bearer ${token}` : ""
-        },
-        body: JSON.stringify(list)
-    })
-    .then(res => Promise.all([res.ok, res.json()]))
-    .then(([ok, data]) => {
-        if (!ok) {
-            alert(data.message || "Error saving data.");
+    const btn = document.querySelector("button[onclick='submitWorklist()']");
+    const originalText = btn.innerText;
+    btn.innerText = "Submitting...";
+    btn.disabled = true;
+
+    try {
+        const response = await fetch(`${API_BASE}/save`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": token ? `Bearer ${token}` : ""
+            },
+            body: JSON.stringify(list)
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert(data.message || "Saved successfully!");
+            if (typeof clearWorklistData === "function") clearWorklistData();
         } else {
-            alert(data.message || "Data updated successfully!");
-            if (typeof resetAll === "function") resetAll();
-            if (typeof updateRowCount === "function") updateRowCount();
+            alert("Error: " + (data.message || "Failed to save."));
         }
-    })
-    .catch(err => {
-        console.error(err);
-        alert("Server error. Please check your connection.");
-    });
-}
-
-
-function deleteSelectedRows() {
-
-    const rows = document.querySelectorAll("#dataTable tbody tr");
-    let deleted = false;
-
-    rows.forEach(row => {
-        const checkbox = row.querySelector(".rowCheckbox");
-
-        if (checkbox && checkbox.checked) {
-            row.remove();
-            deleted = true;
-        }
-    });
-
-    if (!deleted) {
-        alert("Select at least one row to delete");
-    }
-
-    updateRowCount();
-}
-
-
-function clearSelectedRows() {
-
-    const rows = document.querySelectorAll("#dataTable tbody tr");
-    let cleared = false;
-
-    rows.forEach(row => {
-        const checkbox = row.querySelector(".rowCheckbox");
-
-        if (checkbox && checkbox.checked) {
-
-            const inputs = row.querySelectorAll("input:not([type='checkbox'])");
-            inputs.forEach(input => input.value = "");
-
-
-            const selects = row.querySelectorAll("select");
-            selects.forEach(select => {
-                select.selectedIndex = 0;
-            });
-
-            row.classList.remove("invalid");
-
-            cleared = true;
-        }
-    });
-
-    if (!cleared) {
-        alert("Select at least one row to clear");
-    }
-}
-
-
-function updateRowCount() {
-    const rows = document.querySelectorAll("#dataTable tbody tr");
-    const rowsField = document.getElementById("rows");
-
-    if (rowsField) {
-        rowsField.value = rows.length;
+    } catch (err) {
+        console.error("Submission Error:", err);
+        const API_BASE = window.API_BASE || "";
+        alert(`Server error!\n\nFailed to connect to: ${API_BASE}/save\n\nDetails: ${err.message}\n\nPlease ensure your local backend is running (START.bat).`);
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
     }
 }

@@ -209,8 +209,46 @@ def save():
         print("Save error:", e)
         return jsonify({"message": f"Error saving data: {str(e)}"}), 500
 
+@app.route("/fetch", methods=["POST"])
+def fetch_data():
+    try:
+        data = request.get_json()
+        lang = data.get("language", "English").strip().lower()
+        from_date = data.get("fromDate")
+        to_date = data.get("toDate")
+        
+        if not from_date:
+            return jsonify({"message": "From date is required"}), 400
+        
+        table_name = f"panchanga_updated{lang}"
+        
+        conn = get_db()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        
+        # SQL to fetch records in the range
+        # Assuming date, month, year are numeric or comparable strings
+        # Using STR_TO_DATE for robust comparison if possible
+        sql = f"""
+            SELECT * FROM {table_name}
+            WHERE STR_TO_DATE(CONCAT(year, '-', month, '-', date), '%Y-%m-%d') 
+            BETWEEN %s AND %s
+        """
+        
+        try:
+            cursor.execute(sql, (from_date, to_date or from_date))
+            results = cursor.fetchall()
+        except pymysql.err.ProgrammingError:
+            # Table might not exist yet
+            results = []
+            
+        conn.close()
+        return jsonify(results), 200
+    except Exception as e:
+        print("Fetch error:", e)
+        return jsonify([]), 200
+
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
+    port = int(os.environ.get("PORT", 5000))
     print(f"🚀 Starting app on port {port}...")
     from waitress import serve
     serve(app, host="0.0.0.0", port=port)

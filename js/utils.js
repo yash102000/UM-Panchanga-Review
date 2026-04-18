@@ -14,6 +14,15 @@ function resetAll() {
     const bulkValue = document.getElementById("bulkValue");
     if (bulkField) bulkField.value = "";
     if (bulkValue) bulkValue.value = "";
+
+    // Reset field selectors to default (all checked)
+    if (typeof toggleAllFields === "function") toggleAllFields(true);
+}
+
+function toggleAllFields(checked) {
+    const toggles = document.querySelectorAll(".field-toggle");
+    toggles.forEach(t => t.checked = checked);
+    syncColumnVisibility();
 }
 
 function applyBulkValue() {
@@ -25,21 +34,14 @@ function applyBulkValue() {
         return;
     }
     
-    const fieldMap = {
-        "rutu": 0,
-        "masa": 1,
-        "masaNiyamaka": 2,
-        "paksha": 3,
-        "thithi": 4,
-        "vasara": 5,
-        "nakshatra": 6,
-        "yoga": 7,
-        "karana": 8,
-        "shradhatithi": 9,
-        "vishesha": 10
-    };
-    
-    const index = fieldMap[field];
+    // Find the static index of this field
+    const inputIndex = ALL_FIELDS.findIndex(f => f.id === field);
+
+    if (inputIndex === -1) {
+        alert(`The field "${field}" is not valid.`);
+        return;
+    }
+
     const rows = document.querySelectorAll("#dataTable tbody tr");
     let appliedCount = 0;
     
@@ -47,10 +49,10 @@ function applyBulkValue() {
         const checkbox = row.querySelector(".rowCheckbox");
         if (checkbox && checkbox.checked) {
             const inputs = row.querySelectorAll("td input:not([type='checkbox'])");
-            if (inputs[index]) {
-                inputs[index].value = value;
+            if (inputs[inputIndex]) {
+                inputs[inputIndex].value = value;
                 // Trigger validation logic for sequels
-                inputs[index].dispatchEvent(new Event('input', { bubbles: true }));
+                inputs[inputIndex].dispatchEvent(new Event('input', { bubbles: true }));
                 appliedCount++;
             }
         }

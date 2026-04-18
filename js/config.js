@@ -27,10 +27,9 @@
         resolved = normalize(window.API_BASE_URL);
     } else if (stored) {
         resolved = normalize(stored);
-    } else if (origin && !isStaticHost) {
-        resolved = normalize(origin);
     } else {
-        resolved = "https://2plrprlxqh.execute-api.ap-south-1.amazonaws.com/prod";
+        // Fallback for local development if not on a web server
+        resolved = "http://localhost:5000";
     }
 
     // Special case: if we are on Render, definitely use the origin

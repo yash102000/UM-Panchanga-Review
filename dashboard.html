@@ -6,10 +6,9 @@
     <title>UM Panchanga Review Panel</title>
     <link rel="stylesheet" href="css/style.css">
     <script>
-        // Authentication Guard: Check before rendering any content
+
         (function () {
             if (localStorage.getItem("isLoggedIn") !== "true") {
-                // Determine the correct login path based on environment
                 const loginPath = window.location.hostname === 'localhost' ? 'pages/login.html' : '/login';
                 window.location.replace(loginPath);
             }
@@ -57,10 +56,8 @@
     <main class="container">
 
         <section class="card">
-            <h3>Filter & Generate Data</h3>
-
+            <h3>Targeted Review Selection</h3>
             <div class="form-grid">
-
                 <div class="form-group">
                     <label for="language">Language</label>
                     <select id="language">
@@ -75,95 +72,45 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="fromDate">From Date</label>
-                    <input type="date" id="fromDate">
+                    <label for="targetDate">Select Date</label>
+                    <input type="date" id="targetDate">
                 </div>
 
-                <div class="form-group">
-                    <label for="toDate">To Date (Optional)</label>
-                    <input type="date" id="toDate">
+                <div class="form-group" style="grid-column: span 1;">
+                    <label>Select Fields</label>
+                    <div style="margin-bottom: 8px;">
+                        <button type="button" class="btn btn-primary"
+                            style="padding: 2px 8px; font-size: 11px; background: #666;"
+                            onclick="toggleAllChecks(true)">All</button>
+                        <button type="button" class="btn btn-primary"
+                            style="padding: 2px 8px; font-size: 11px; background: #666;"
+                            onclick="toggleAllChecks(false)">None</button>
+                    </div>
+                    <div id="fieldChecklist"
+                        style="max-height: 150px; overflow-y: auto; background: rgba(255,255,255,0.2); padding: 10px; border-radius: 6px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                        <!-- Checkboxes will be generated here -->
+                    </div>
                 </div>
-
-                <div class="form-group">
-                    <label for="rows">Total Rows</label>
-                    <input type="number" id="rows" readonly>
-                </div>
-
             </div>
 
-            <div class="form-actions">
-                <button class="btn btn-primary" onclick="generateRows()">Generate</button>
-                <button class="btn btn-danger" onclick="resetAll()">Reset</button>
+            <div class="form-actions" style="margin-top: 20px;">
+                <button class="btn btn-primary" onclick="addTargetedRows()">Add to Worklist</button>
+                <button class="btn btn-danger" onclick="resetWorklist()">Reset All</button>
             </div>
-
         </section>
 
-        <section class="card">
-            <h3>Panchanga Data Entry</h3>
+        <section class="card" id="worklistSection" style="display: none;">
+            <h3>Review & Submit</h3>
 
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="bulkField">Fields</label>
-                    <select id="bulkField">
-                        <option value="">-- Select Field --</option>
-                        <option value="rutu">Rutu</option>
-                        <option value="masa">Masa</option>
-                        <option value="masaNiyamaka">Masa Niyamaka</option>
-                        <option value="paksha">Paksha</option>
-                        <option value="thithi">Thithi</option>
-                        <option value="vasara">Vasara</option>
-                        <option value="nakshatra">Nakshatra</option>
-                        <option value="yoga">Yoga</option>
-                        <option value="karana">Karana</option>
-                        <option value="shradhatithi">Shradha Tithi</option>
-                        <option value="vishesha">Vishesha</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="bulkValue">Data</label>
-                    <input type="text" id="bulkValue" placeholder="Enter value">
-                </div>
+            <div id="worklistContainer">
+                <!-- Multiple Targeted Tables will be generated here -->
             </div>
 
-            <div class="form-actions">
-                <button class="btn btn-primary" onclick="applyBulkValue()">Apply to Selected</button>
+            <div class="form-actions" style="margin-top: 20px;">
+                <button class="btn btn-success" onclick="submitWorklist()">Submit All Changes</button>
+                <button class="btn btn-primary" style="background:#555;" onclick="clearWorklistData()">Clear
+                    All</button>
             </div>
-
-            <br>
-
-            <div class="table-container">
-                <table id="dataTable">
-                    <thead>
-                        <tr>
-                            <th class="checkbox-col">Select Row</th>
-                            <th class="date-col">Date</th>
-                            <th class="date-col">Month</th>
-                            <th class="date-col">Year</th>
-                            <th class="data-col" data-field="rutu">Rutu</th>
-                            <th class="data-col" data-field="masa">Masa</th>
-                            <th class="data-col" data-field="masaNiyamaka">Masa Niyamaka</th>
-                            <th class="data-col" data-field="paksha">Paksha</th>
-                            <th class="data-col" data-field="thithi">Thithi</th>
-                            <th class="data-col" data-field="vasara">Vasara</th>
-                            <th class="data-col" data-field="nakshatra">Nakshatra</th>
-                            <th class="data-col" data-field="yoga">Yoga</th>
-                            <th class="data-col" data-field="karana">Karana</th>
-                            <th class="data-col" data-field="shradhatithi">Shradha Tithi</th>
-                            <th class="data-col" data-field="vishesha">Vishesha</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-
-            <br>
-            <div>
-
-                <button class="btn btn-success" onclick="submitData()">Submit</button>
-                <button class="btn btn-primary" onclick="clearSelectedRows()">Clear</button>
-                <button class="btn btn-danger" onclick="deleteSelectedRows()">Delete</button>
-            </div>
-
         </section>
 
     </main>
