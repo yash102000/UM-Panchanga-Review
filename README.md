@@ -1,69 +1,88 @@
-# Panchanga Review – Configuration Quick Guide
+# UM Panchanga Review Panel - Full Documentation
 
-Backend environment variables (override defaults without changing code):
-- `DB_HOST` - database host (default panchanga-db.cxgu0ko8m1a7.ap-south-1.rds.amazonaws.com)
-- `DB_PORT` - port (default 3306)
-- `DB_USER` - username (default admin)
-- `DB_PASSWORD` - password (default Pthinks123)
-- `DB_NAME` - database name (default panchanga_db)
-- `DB_CHARSET` - charset (default utf8mb4)
-- `DB_CONNECT_TIMEOUT` - connect timeout seconds (default 5)
-- `TABLE_MAP` - JSON mapping of language label -> table (default is the hardcoded map in code)
-- `MAIL_SENDER` - email address used to send reset links (default ruraldevelopment2024@gmail.com)
-- `MAIL_APP_PASSWORD` - app password for the sender account
-- `RESET_BASE_URL` - base URL for reset links (if unset, the app falls back to the incoming request host/port)
-- `SMTP_HOST` / `SMTP_PORT` - SMTP settings (default smtp.gmail.com / 587)
+## Project Overview
+The **UM Panchanga Review Panel** is a specialized web application designed for the precise, targeted entry and review of Panchanga data. Unlike traditional grid-based spreadsheets, this tool focus on a "Targeted Worklist" model, allowing users to pick specific dates and specific fields to update in a single, efficient operation.
 
-Frontend runtime overrides (set in a script tag before loading `js/config.js`, or assign on `window` before other scripts):
-- `window.API_BASE_URL` - base URL for API calls (default falls back to current origin or http://127.0.0.1:5000)
-- `window.PANCHANGA_DATE_MIN` - min date for form pickers (default 2026-03-20)
-- `window.PANCHANGA_DATE_MAX` - max date for form pickers (default 2027-04-08)
+---
 
-Share/reset from another machine (quick recipe):
-1) Expose backend on a reachable host (e.g., deploy, or run `python -m flask run --host 0.0.0.0 --port 5000` behind an ngrok tunnel `ngrok http 5000`).
-2) Set backend env `RESET_BASE_URL` to that public HTTPS URL (e.g., `https://<ngrok-id>.ngrok.app`) before starting Flask so emails contain a reachable link. If you leave it unset, links will use the host that served the request.
-3) For the frontend on any laptop, open the page and run `window.setApiBase("https://<ngrok-id>.ngrok.app")` in the console once (or add `<script>window.API_BASE_URL="https://...";</script>` before `js/config.js`). The value is persisted in localStorage.
-4) Use the app normally; reset links will redirect back to `/pages/login.html` on that host.
+## Technical Stack
+*   **Backend**: Python (Flask) with Waitress (WSGI Server).
+*   **Database**: MySQL (hosted on AWS/Local).
+*   **Frontend**: Vanilla JavaScript (ES6+), HTML5, and Modern CSS3.
+*   **Deployment**: Optimized for Render (backend) and Static Hosting (frontend).
 
-## Troubleshooting
+---
 
-### "Database connection failed. Please try again." Error on Login/Signup
-If you encounter this red popup error in the UI, your local machine cannot reach the AWS RDS Database (`panchanga-db.cxgu0ko8m1a7...`). 
-This happens because:
-1. **You don't have internet access**, or
-2. **AWS Security Group** is blocking your IP address. 
+## Build Evolution: From Concept to Production
 
-**How to Fix It:**
-* **Option A (AWS):** Log into your AWS RDS Console, examine the Security Group assigned to `panchanga-db`, and add an Inbound Rule for MySQL/Aurora (Port 3306) allowing connection from your current IP (or `0.0.0.0/0` temporarily).
-* **Option B (Local MySQL):** Run a local MySQL server (like XAMPP or MySQL Desktop). Then,## 🚀 Deployment on Render
+### Phase 1: Range-Based Grid (Initial Concept)
+The project started as a standard grid view where users would fetch a range of dates and see an massive table of all data. While functional, this was found to be inefficient for making specific, scattered corrections.
 
-This project is configured for easy deployment on **Render**.
+### Phase 2: Targeted Worklist Pivot
+Based on user feedback, the architecture pivoted to the **Targeted Worklist** model. 
+*   **The Innovation**: Users select a single date and a checklist of fields.
+*   **The Workflow**: Instead of searching for a cell, the user "creates" the task, adding it to a review list.
 
-### 1. Create a Web Service
-- Connect your GitHub repository to Render.
-- Set **Runtime** to `Python 3`.
-- Set **Build Command** to `pip install -r requirements.txt`.
-- Set **Start Command** to `gunicorn backend.app:app`. (This is also handled by the `Procfile`).
+### Phase 3: Multi-Table Isolation & "Single-Shot" Logic
+To ensure total clarity, the UI was refined to generate **independent tables** for each date selection.
+*   Verified that Date A's fields do not "mix" with Date B's fields.
+*   Implemented the "Single-Shot" submission, allowing the user to fill out multiple isolated tables and submit them all to the backend in one network request.
 
-### 2. Environment Variables
-In the Render dashboard, go to **Environment** and add the following keys:
-- `DB_HOST`: Your RDS endpoint (e.g., `xxx.amazonaws.com`)
-- `DB_USER`: Your DB username
-- `DB_PASSWORD`: Your DB password
-- `DB_NAME`: Your DB name
-- `DB_PORT`: `3306`
-- `APP_SECRET_KEY`: A random long string for security.
-- `MAIL_SENDER`: (Optional) Your Gmail address.
-- `MAIL_APP_PASSWORD`: (Optional) Your Gmail App Password.
+### Phase 4: Mobile-First Overhaul
+Recognizing that reviewers often work on the go, the entire styling was rebuilt to be responsive:
+*   Added Viewport scaling.
+*   Implemented a responsive grid that stacks on small screens.
+*   Optimized touch targets and input sizes for mobile browsers.
 
-### 3. Database Notes
-- The application automatically initializes the `users` table upon startup if it doesn't exist.
-- If you encounter issues, ensure your RDS Security Group allows inbound traffic from `0.0.0.0/0` or the Render IP range.
- override the backend variables in your terminal before running Flask:
-  ```bash
-  set DB_HOST=localhost
-  set DB_USER=root
-  set DB_PASSWORD=your_local_password
-  set DB_NAME=panchanga_db
-  python app.py
-  ```
+---
+
+## Key Features
+
+### 1. Targeted Data Entry
+Select from 11 core Panchanga fields (Rutu, Masa, Thithi, Nakshatra, etc.) for any specific date. The UI dynamically generates only the inputs you need.
+
+### 2. Multi-Table Worklist
+Each session's selections are isolated into their own horizontal tables. This keeps your Workspace clean and prevents entry errors.
+
+### 3. Smart Persistence (UPSERT)
+The backend uses `INSERT ON DUPLICATE KEY UPDATE` logic. This means if a record for a specific date already exists, it is updated; if not, it is created automatically.
+
+### 4. Comprehensive Authentication
+A full auth flow including:
+*   Secure Login & Signup.
+*   JWT-based Token handling.
+*   Forgot Password & Reset Token email flow (via `itsdangerous` and SMTP).
+
+---
+
+## Setup & Local Development
+
+### Prerequisites
+*   Python 3.8+
+*   MySQL Database
+*   `.env` file with `DB_HOST`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME`.
+
+### Running Locally
+1.  Clone the repository.
+2.  Install dependencies: `pip install -r requirements.txt`.
+3.  Run **`START.bat`**. This script automates:
+    *   Starting the Flask Backend on port **5000**.
+    *   (Optional) Setting up an **ngrok** tunnel for external access.
+4.  Open `dashboard.html` in your browser.
+
+---
+
+## API Reference
+
+### `POST /save`
+Saves or updates Panchanga data.
+*   **Payload**: An array of objects.
+*   **Structure**: `{ "language": "...", "date": "..", "month": "..", "year": "..", "update_fields": ["field1"], "field1": "value" }`
+
+### `POST /login` / `POST /signup`
+Handles user authentication and generates session tokens.
+
+---
+
+## Project Status: Production Ready
+The project is currently optimized for production deployment on **Render**. It features a robust, mobile-responsive frontend and a dynamic, scalable backend.
